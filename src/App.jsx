@@ -22,7 +22,6 @@ import AddCategoryPage from "./components/AddCategoryPage";
 import DashBoard from "./pages/DashBoard";
 import AbandonedCart from "./components/AbandonedCart";
 import ChangePassword from "./components/ChangePassword";
-import AddOrder from "./components/OrderComponents/Add/AddOrder";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminDistributors from "./pages/AdminDistributors";
@@ -82,7 +81,6 @@ export default function App() {
               <Route path="/" element={<Statistics />} />
               <Route path="sales/orders">
                 <Route index element={<OrdersTable />} />
-                {/* <Route path="AddOrder" element={<AddOrder />} /> */}
                 <Route
                   path="order-details/:id"
                   element={<OrderDetailsPage />}

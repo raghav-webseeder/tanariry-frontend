@@ -30,7 +30,7 @@ const Row = ({ item, onDelete, onCategoryClick }) => (
       <span className="text-xs text-gray-600">
         {item.subCategories && item.subCategories.length > 0
           ? item.subCategories
-            .map((sc) => `${sc.name} (${sc.label})`)
+            .map((sc) => `${sc.name}`)
             .join(", ")
           : "None"}
       </span>
@@ -114,10 +114,8 @@ const CategoriesPage = () => {
           Array.isArray(category.subCategories) &&
           category.subCategories.some((sc) => {
             const scName = sc.name || sc || "";
-            const scLabel = sc.label || "";
             return (
-              scName.toLowerCase().includes(searchText.toLowerCase()) ||
-              scLabel.toLowerCase().includes(searchText.toLowerCase())
+              scName.toLowerCase().includes(searchText.toLowerCase())
             );
           }));
       return matchesSearch;
@@ -141,7 +139,7 @@ const CategoriesPage = () => {
       category.name || "Unnamed",
       category.subCategories && Array.isArray(category.subCategories)
         ? category.subCategories
-          .map((sc) => `${sc.name} (${sc.label})`)
+          .map((sc) => `${sc.name}`)
           .join(", ")
         : "None",
     ]);
@@ -369,8 +367,8 @@ const CategoriesPage = () => {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`px-2 py-1 text-xs rounded ${currentPage === page
-                        ? "bg-[#293a90] text-white border border-[#293a90]"
-                        : "border border-gray-300 hover:bg-gray-50"
+                      ? "bg-[#293a90] text-white border border-[#293a90]"
+                      : "border border-gray-300 hover:bg-gray-50"
                       }`}
                   >
                     {page}

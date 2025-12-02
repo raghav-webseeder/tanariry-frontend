@@ -276,8 +276,8 @@ const AddUserPage = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs"
                   >
-                    <option value="admin">Admin</option>
-                    <option value="userpannel">User Panel</option>
+                    {/* <option value="admin">Admin</option> */}
+                    <option value="userpannel">Panel User</option>
                     <option value="customer">Customer</option>
                   </select>
                 </div>
@@ -285,21 +285,21 @@ const AddUserPage = () => {
             </div>
 
             {/* Modules Section */}
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                  <Shield size={16} />
-                  Module Access
-                </h3>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                  {modules.map(({ key, label }) => (
-                    <div
-                      key={key}
-                      className="relative border border-gray-200 hover:shadow-md transition-shadow rounded-lg p-4"
-                    >
-                      <label className="flex items-center gap-2 cursor-pointer">
+            {formData.role !== "customer" && (
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <Shield size={16} />
+                    Module Access
+                  </h3>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+                    {modules.map(({ key, label }) => (
+                      <label
+                        key={key}
+                        className="relative border border-gray-200 hover:shadow-md transition-shadow rounded-lg p-4 cursor-pointer flex items-center gap-2"
+                      >
                         <input
                           type="checkbox"
                           checked={selectedModules.includes(key)}
@@ -308,21 +308,17 @@ const AddUserPage = () => {
                         />
                         <span className="text-xs text-gray-700">{label}</span>
                       </label>
-                    </div>
-                  ))}
-                  {selectedModules.length === 0 && (
-                    <div className="col-span-full text-center text-gray-500 py-8">
-                      <Shield
-                        size={32}
-                        className="mx-auto mb-2 text-gray-300"
-                      />
-                      <p className="text-xs">No modules selected</p>
-                    </div>
-                  )}
+                    ))}
+                    {selectedModules.length === 0 && (
+                      <div className="col-span-full text-center text-gray-500 py-8">
+                        <Shield size={32} className="mx-auto mb-2 text-gray-300" />
+                        <p className="text-xs">No modules selected</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-
+            )}
             <FooterButtons onCancel={handleCancel} loading={loading} />
           </form>
         </div>

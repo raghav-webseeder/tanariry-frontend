@@ -50,10 +50,14 @@ const ProductDetailsForm = ({
 };
 
 const PriceFields = ({
-  originalPrice,
-  setOriginalPrice,
-  discountedPrice,
-  setDiscountedPrice,
+  priceINR,
+  setPriceINR,
+  discountedPriceINR,
+  setDiscountedPriceINR,
+  priceUSD,
+  setPriceUSD,
+  discountedPriceUSD,
+  setDiscountedPriceUSD,
   stock,
   setStock,
 }) => (
@@ -61,29 +65,68 @@ const PriceFields = ({
     <h3 className="text-xs font-semibold text-gray-900 mb-4 uppercase tracking-wide">
       Pricing
     </h3>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <div className="space-y-6">
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Original Price *
-        </label>
-        <input
-          type="number"
-          value={originalPrice}
-          onChange={(e) => setOriginalPrice(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
-        />
+        <h4 className="text-xs font-medium text-gray-700 mb-3">INR Pricing</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Original Price (₹) *
+            </label>
+            <input
+              type="number"
+              value={priceINR}
+              onChange={(e) => setPriceINR(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Discount Price (₹) *
+            </label>
+            <input
+              type="number"
+              value={discountedPriceINR}
+              onChange={(e) => setDiscountedPriceINR(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Discount Price *
-        </label>
-        <input
-          type="number"
-          value={discountedPrice}
-          onChange={(e) => setDiscountedPrice(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
-        />
+        <h4 className="text-xs font-medium text-gray-700 mb-3">USD Pricing</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Original Price ($) *
+            </label>
+            <input
+              type="number"
+              value={priceUSD}
+              onChange={(e) => setPriceUSD(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Discount Price ($) *
+            </label>
+            <input
+              type="number"
+              value={discountedPriceUSD}
+              onChange={(e) => setDiscountedPriceUSD(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
       </div>
 
       <div>
@@ -95,6 +138,7 @@ const PriceFields = ({
           value={stock}
           onChange={(e) => setStock(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+          placeholder="0"
         />
       </div>
     </div>
@@ -297,8 +341,10 @@ const AddProduct = () => {
 
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
-  const [originalPrice, setOriginalPrice] = useState("");
-  const [discountedPrice, setDiscountedPrice] = useState("");
+  const [priceINR, setPriceINR] = useState("");
+  const [discountedPriceINR, setDiscountedPriceINR] = useState("");
+  const [priceUSD, setPriceUSD] = useState("");
+  const [discountedPriceUSD, setDiscountedPriceUSD] = useState("");
   const [stock, setStock] = useState("");
   const [images, setImages] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
@@ -326,8 +372,8 @@ const AddProduct = () => {
     if (
       !productName.trim() ||
       !description.trim() ||
-      !originalPrice ||
-      !discountedPrice ||
+      !priceINR ||
+      !discountedPriceINR ||
       !stock ||
       !selectedCategoryId ||
       !selectedSubCategoryId ||
@@ -340,8 +386,15 @@ const AddProduct = () => {
     const formData = new FormData();
     formData.append("productName", productName);
     formData.append("description", description);
-    formData.append("originalPrice", originalPrice);
-    formData.append("discountPrice", discountedPrice);
+
+    // yahi critical mapping hai
+    formData.append("originalPrice", priceINR);
+    formData.append("discountPrice", discountedPriceINR);
+
+    // optional: USD fields backend me abhi ignore ho jayenge
+    formData.append("priceUSD", priceUSD || 0);
+    formData.append("discountPriceUSD", discountedPriceUSD || 0);
+
     formData.append("stock", stock);
     formData.append("category", selectedCategoryId);
     formData.append("subCategoryId", selectedSubCategoryId);
@@ -385,10 +438,14 @@ const AddProduct = () => {
               />
 
               <PriceFields
-                originalPrice={originalPrice}
-                setOriginalPrice={setOriginalPrice}
-                discountedPrice={discountedPrice}
-                setDiscountedPrice={setDiscountedPrice}
+                priceINR={priceINR}
+                setPriceINR={setPriceINR}
+                discountedPriceINR={discountedPriceINR}
+                setDiscountedPriceINR={setDiscountedPriceINR}
+                priceUSD={priceUSD}
+                setPriceUSD={setPriceUSD}
+                discountedPriceUSD={discountedPriceUSD}
+                setDiscountedPriceUSD={setDiscountedPriceUSD}
                 stock={stock}
                 setStock={setStock}
               />
