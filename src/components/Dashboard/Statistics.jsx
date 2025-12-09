@@ -283,6 +283,7 @@ const Statistics = () => {
                 name="Order Amount (₹)"
                 barSize={30}
                 radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
               />
               <Line
                 yAxisId="right"
@@ -292,6 +293,7 @@ const Statistics = () => {
                 strokeWidth={2}
                 dot={{ r: 4, fill: "#10b981" }}
                 name="Number of Orders"
+                isAnimationActive={false}
               />
             </ComposedChart>
           </ResponsiveContainer>

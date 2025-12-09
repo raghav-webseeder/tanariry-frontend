@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { User, Bell } from "lucide-react";
 import useAdminStore from "../store/useAdminStore";
+import OrderNotifications from "./OrderNotifications";
 
 const menuItems = [
   { label: "Dashboard", path: "/dashboard" },
@@ -29,9 +30,6 @@ export default function Navbar({ toggleSidebar }) {
   const { adminLogout } = useAdminStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [adminName, setAdminName] = useState("Admin"); // Default state
-
-  // Example: This should come from your store/API
-  const unreadCount = 3;
 
   const dropdownRef = useRef(null);
   const location = useLocation();
@@ -121,19 +119,7 @@ export default function Navbar({ toggleSidebar }) {
         {/* Right Section: Bell + Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Notification Bell */}
-          <button
-            onClick={() => navigate("/notifications")}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative group"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 group-hover:text-gray-800" />
-
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 flex h-4 w-4 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white">
-                {unreadCount}
-              </span>
-            )}
-          </button>
+          <OrderNotifications />
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>

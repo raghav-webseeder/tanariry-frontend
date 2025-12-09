@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaTh,
@@ -207,7 +207,7 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar }) {
         </div>
       </nav>
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

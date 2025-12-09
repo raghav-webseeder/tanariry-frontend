@@ -16,131 +16,6 @@ import {
     FileText
 } from "lucide-react";
 
-//  Dummy Data: Crockery Theme Only 
-const initialNotifications = [
-    {
-        id: "ord-ck-01",
-        type: "order",
-        title: "New Order #CK-8821",
-        customer: "Aarav Patel",
-        amount: 4500,
-        status: "pending",
-        time: "2 min ago",
-        createdAt: "2025-12-05T12:00:00Z",
-        details: "Bone China Set",
-        read: false,
-        extendedDetails: {
-            email: "aarav.p@example.com",
-            phone: "+91 98765 43210",
-            address: "45, Juhu Lane, Mumbai, MH - 400049",
-            items: [
-                { name: "Royal Gold Dinner Set (21 pcs)", qty: 1, price: 4500 },
-            ],
-            paymentMethod: "UPI",
-        }
-    },
-    {
-        id: "ret-ck-02",
-        type: "return",
-        title: "Return Request #RT-990",
-        customer: "Meera Iyer",
-        amount: 899,
-        status: "requested",
-        time: "15 min ago",
-        createdAt: "2025-12-05T11:45:00Z",
-        details: "Ceramic Platter",
-        read: false,
-        extendedDetails: {
-            reason: "Damaged in transit",
-            comments: "Chipped edge",
-            requestedAction: "Replacement",
-            pickupAddress: "B-12, Indiranagar, Bangalore - 560038",
-            originalOrderDate: "2025-12-01",
-            images: []
-        }
-    },
-    {
-        id: "ord-ck-03",
-        type: "order",
-        title: "Order #CK-8815 Shipped",
-        customer: "Sonia Gill",
-        amount: 1250,
-        status: "shipped",
-        time: "1 hr ago",
-        createdAt: "2025-12-05T11:00:00Z",
-        details: "Coffee Mugs",
-        read: false,
-        extendedDetails: {
-            email: "sonia.g@example.com",
-            phone: "+91 99887 77665",
-            address: "Flat 9, Green Park, Delhi - 110016",
-            items: [
-                { name: "Matte Black Ceramic Mugs (Set of 4)", qty: 1, price: 850 },
-                { name: "Wooden Coasters (Set of 4)", qty: 1, price: 400 },
-            ],
-            trackingId: "BLU-998877",
-            courier: "Delhivery"
-        }
-    },
-    {
-        id: "pay-ck-04",
-        type: "payment",
-        title: "Payment Received #TX-112",
-        customer: "Vikram Singh",
-        amount: 12000,
-        status: "success",
-        time: "2 hrs ago",
-        createdAt: "2025-12-05T10:00:00Z",
-        details: "Luxury Tea Set",
-        read: true,
-        extendedDetails: {
-            transactionId: "pay_Vi8s7d6f5",
-            method: "Credit Card",
-            bankRef: "HDFC-0099",
-            date: "2025-12-05 10:00 AM",
-            gateway: "Razorpay"
-        }
-    },
-    {
-        id: "ret-ck-05",
-        type: "return",
-        title: "Return Approved #RT-850",
-        customer: "Anjali Desai",
-        amount: 2100,
-        status: "approved",
-        time: "Yesterday",
-        createdAt: "2025-12-04T15:30:00Z",
-        details: "Soup Bowls",
-        read: true,
-        extendedDetails: {
-            reason: "Quality Issue",
-            comments: "Glaze uneven",
-            requestedAction: "Refund",
-            pickupAddress: "Sector 17, Chandigarh - 160017",
-            originalOrderDate: "2025-11-28",
-            images: []
-        }
-    },
-    {
-        id: "pay-ck-06",
-        type: "payment",
-        title: "Payment Failed #TX-109",
-        customer: "Rohan Das",
-        amount: 3400,
-        status: "failed",
-        time: "Yesterday",
-        createdAt: "2025-12-04T14:15:00Z",
-        details: "Glass Tumblers",
-        read: false,
-        extendedDetails: {
-            transactionId: "pay_fail_9900",
-            method: "Net Banking",
-            failureReason: "Bank Timeout",
-            date: "2025-12-04 14:15 PM",
-            gateway: "Razorpay"
-        }
-    }
-];
 
 //  Helper Functions 
 const statusColors = {
@@ -311,10 +186,27 @@ const NotificationModal = ({ notification, onClose }) => {
 
 //  Main Page Component 
 const NotificationPage = () => {
+    const { notifications: contextNotifications, markAsRead, markAllAsRead } = useOrderNotifications();
     const [activeTab, setActiveTab] = useState("all");
-    const [notifications, setNotifications] = useState(initialNotifications);
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
     const [selectedNotification, setSelectedNotification] = useState(null);
+
+    const notifications = useMemo(() => {
+        if (!contextNotifications) return [];
+        return contextNotifications.map(n => ({
+            id: n._id,
+            type: n.type === 'new_order' ? 'order' : (n.type || 'order'),
+            title: n.title,
+            customer: n.data?.customerName || 'Unknown',
+            amount: n.data?.totalAmount || 0,
+            status: n.data?.status || 'pending',
+            time: new Date(n.createdAt).toLocaleString(),
+            createdAt: n.createdAt,
+            details: n.message,
+            read: n.read,
+            extendedDetails: n.data || {}
+        }));
+    }, [contextNotifications]);
 
     const filteredNotifications = useMemo(() => {
         let list = [...notifications];
@@ -325,21 +217,20 @@ const NotificationPage = () => {
 
     const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
-    const handleMarkAllRead = () => setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const handleMarkAllRead = () => markAllAsRead();
 
     const handleToggleRead = (e, id) => {
         e.stopPropagation();
-        setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: !n.read } : n));
+        markAsRead(id);
     };
 
     const handleClearOne = (e, id) => {
         e.stopPropagation();
-        setNotifications((prev) => prev.filter((n) => n.id !== id));
     };
 
     const handleRowClick = (notification) => {
         if (!notification.read) {
-            setNotifications((prev) => prev.map((n) => n.id === notification.id ? { ...n, read: true } : n));
+            markAsRead(notification.id);
         }
         setSelectedNotification(notification);
     };

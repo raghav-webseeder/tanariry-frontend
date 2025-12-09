@@ -38,6 +38,7 @@ import Finance from "./pages/Finance.jsx";
 import Report from "./pages/Report.jsx";
 import ReturnRequests from "./components/Dashboard/ReturnRequests.jsx";
 import NotificationPage from "./pages/NotificationPage.jsx";
+import { OrderNotificationProvider } from "./context/OrderNotificationContext";
 
 export default function App() {
   const { checkAuth, user, initializeAuth } = useAdminStore();
@@ -45,88 +46,94 @@ export default function App() {
   useEffect(() => {
     initializeAuth();
     checkAuth();
+
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   }, [checkAuth, initializeAuth]);
   return (
     <>
       <BrowserRouter>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss={false}
-          draggable
-          pauseOnHover={true}
-        />
-        <Routes>
-          {user ? (
-            <Route path="" element={<MainLayout />}>
-              <Route path="manage-profile" element={<ManageProfilePage />} />
-              <Route path="change-password" element={<ChangePassword />} />
-              <Route
-                path="sales/cancelled-orders"
-                element={<OrderCancellation />}
-              />
-              <Route path="notifications" element={<NotificationPage />} />
-              <Route path="sales/wishlist" element={<Wishlist />} />
-              <Route path="sales/abandoned-cart" element={<AbandonedCart />} />
-              <Route path="recentOrders" element={<RecentOrders />} />
-              <Route path="returns" element={<ReturnRequests />} />
-              <Route path="dashboard" element={<DashBoard />} />
-              <Route path="users" element={<UserManagement />} />
-              <Route path="users/add-user" element={<AddUserPage />} />
-              <Route path="users/edit-user/:id" element={<EditUserPage />} />
-              <Route
-                path="customers/addcustomer"
-                element={<AddCustomerForm />}
-              />
-              <Route path="/" element={<Statistics />} />
-              <Route path="sales/orders">
-                <Route index element={<OrdersTable />} />
+        <OrderNotificationProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover={true}
+          />
+          <Routes>
+            {user ? (
+              <Route path="" element={<MainLayout />}>
+                <Route path="manage-profile" element={<ManageProfilePage />} />
+                <Route path="change-password" element={<ChangePassword />} />
                 <Route
-                  path="order-details/:id"
-                  element={<OrderDetailsPage />}
+                  path="sales/cancelled-orders"
+                  element={<OrderCancellation />}
                 />
-                <Route path="order-update/:id" element={<UpdateOrder />} />
+                <Route path="notifications" element={<NotificationPage />} />
+                <Route path="sales/wishlist" element={<Wishlist />} />
+                <Route path="sales/abandoned-cart" element={<AbandonedCart />} />
+                <Route path="recentOrders" element={<RecentOrders />} />
+                <Route path="returns" element={<ReturnRequests />} />
+                <Route path="dashboard" element={<DashBoard />} />
+                <Route path="users" element={<UserManagement />} />
+                <Route path="users/add-user" element={<AddUserPage />} />
+                <Route path="users/edit-user/:id" element={<EditUserPage />} />
+                <Route
+                  path="customers/addcustomer"
+                  element={<AddCustomerForm />}
+                />
+                <Route path="/" element={<Statistics />} />
+                <Route path="sales/orders">
+                  <Route index element={<OrdersTable />} />
+                  <Route
+                    path="order-details/:id"
+                    element={<OrderDetailsPage />}
+                  />
+                  <Route path="order-update/:id" element={<UpdateOrder />} />
+                </Route>
+                <Route path="customers" element={<Customer />} />
+                <Route path="customers/:id" element={<CustomerDetails />} />
+  
+                <Route path="catalogue/categories" element={<CategoriesPage />} />
+                <Route
+                  path="catalogue/categories/:id"
+                  element={<UpdateCategoryPage />}
+                />
+                <Route
+                  path="catalogue/categories/addcategory"
+                  element={<AddCategoryPage />}
+                />
+                <Route path="sales/exchange" element={<h2>Exchange</h2>} />
+                <Route path="sales/returns" element={<h2>Returns</h2>} />
+                <Route path="catalogue/product/*" element={<ProductTable />}>
+                  <Route path="add-product" element={<AddProduct />} />
+                  <Route path="update-product/:id" element={<UpdateProduct />} />
+                </Route>
+                <Route path="distributor" element={<AdminDistributors />} />
+                <Route path="inquiry" element={<AdminInquiries />} />
+                <Route path="contents" element={<h2>Contents</h2>} />
+                <Route path="appearance" element={<h2> Appearance </h2>} />
+                <Route path="settings" element={<Setting />} />
+                <Route path="help" element={<Help />} />
+                <Route path="support" element={<Support />} />
+                <Route path="finance" element={<Finance />} />
+                <Route path="report" element={<Report />} />
               </Route>
-              <Route path="customers" element={<Customer />} />
-              <Route path="customers/:id" element={<CustomerDetails />} />
-
-              <Route path="catalogue/categories" element={<CategoriesPage />} />
-              <Route
-                path="catalogue/categories/:id"
-                element={<UpdateCategoryPage />}
-              />
-              <Route
-                path="catalogue/categories/addcategory"
-                element={<AddCategoryPage />}
-              />
-              <Route path="sales/exchange" element={<h2>Exchange</h2>} />
-              <Route path="sales/returns" element={<h2>Returns</h2>} />
-              <Route path="catalogue/product/*" element={<ProductTable />}>
-                <Route path="add-product" element={<AddProduct />} />
-                <Route path="update-product/:id" element={<UpdateProduct />} />
-              </Route>
-              <Route path="distributor" element={<AdminDistributors />} />
-              <Route path="inquiry" element={<AdminInquiries />} />
-              <Route path="contents" element={<h2>Contents</h2>} />
-              <Route path="appearance" element={<h2> Appearance </h2>} />
-              <Route path="settings" element={<Setting />} />
-              <Route path="help" element={<Help />} />
-              <Route path="support" element={<Support />} />
-              <Route path="finance" element={<Finance />} />
-              <Route path="report" element={<Report />} />
-            </Route>
-          ) : (
-            <>
-              <Route index element={<Login />} />
-              <Route path="forgot-password" element={<ForgotPassword />} />
-              <Route path="*" element={<Login />} />
-            </>
-          )}
-        </Routes>
+            ) : (
+              <>
+                <Route index element={<Login />} />
+                <Route path="forgot-password" element={<ForgotPassword />} />
+                <Route path="*" element={<Login />} />
+              </>
+            )}
+          </Routes>
+        </OrderNotificationProvider>
       </BrowserRouter>
     </>
   );
