@@ -277,13 +277,13 @@ const CustomerDetails = () => {
                 <ArrowLeft size={14} /> Back
               </button>
             </div>
-            <button
+            {/* <button
               onClick={handleSaveChanges}
               disabled={isSaving}
               className="inline-flex items-center gap-1.5 text-xs bg-[#293a90] text-white px-4 py-2 rounded-lg hover:bg-[#293a90]/90 transition-colors"
             >
               <Save size={14} /> {isSaving ? "Saving..." : "Save Changes"}
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -432,7 +432,7 @@ const CustomerDetails = () => {
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                   <h3 className="text-sm font-semibold text-gray-900">Saved Addresses</h3>
-                  <button onClick={() => handleOpenModal(false)} className="inline-flex items-center gap-1.5 bg-[#293a90] text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[#293a90]/90 transition-colors"><Plus size={14} /> Add New</button>
+                  {/* <button onClick={() => handleOpenModal(false)} className="inline-flex items-center gap-1.5 bg-[#293a90] text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[#293a90]/90 transition-colors"><Plus size={14} /> Add New</button> */}
                 </div>
                 <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {editedCustomer.addresses && editedCustomer.addresses.length > 0 ? (

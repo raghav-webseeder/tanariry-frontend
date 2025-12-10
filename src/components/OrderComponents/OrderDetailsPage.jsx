@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { ArrowLeft, Edit3, Printer, Package, MapPin, User, Mail, Phone, Calendar, CreditCard } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit3,
+  Printer,
+  Package,
+  MapPin,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  CreditCard
+} from "lucide-react";
 import useOrderStore from "../../store/useOrderStore";
 
 const IMAGE = import.meta.env.VITE_IMAGE;
+
+const formatINR = (amount, isPaise = true) => {
+  const value = isPaise ? (Number(amount || 0) / 100) : Number(amount || 0);
+
+  return `₹${value.toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
 
 const OrderDetailsPage = () => {
   const { id } = useParams();
@@ -58,28 +78,13 @@ const OrderDetailsPage = () => {
   const activeOrder = order || currentOrder;
   const handleBack = () => navigate("../");
   const handlePrint = () => window.print();
+
   const handleUpdate = () => {
     const orderId = order?._id || currentOrder._id;
     if (orderId) {
       navigate(`../order-update/${orderId}`, { state: { order: order || currentOrder } });
     }
   };
-
-  const formatINR = (amount) => {
-    const value = (parseFloat(amount || 0) / 100).toFixed(2);
-    return `₹${parseFloat(value).toLocaleString("en-IN")}`;
-  };
-
-  const formatDate = (dateString) =>
-    dateString && !isNaN(new Date(dateString))
-      ? new Date(dateString).toLocaleDateString("en-IN", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      : "N/A";
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -92,12 +97,11 @@ const OrderDetailsPage = () => {
     return badges[status] || badges.pending;
   };
 
-  // NEW: Function for payment status colors
   const getPaymentStatusBadge = (status) => {
     const badges = {
       paid: "bg-green-100 text-green-800 border-green-300",
       pending: "bg-yellow-100 text-yellow-800 border-yellow-300",
-      failed: "bg-red-100 text-red-800 border-red-300"
+      failed: "bg-red-100 text-red-800 border-red-300",
     };
     return badges[status] || "bg-gray-100 text-gray-800 border-gray-300";
   };
@@ -105,7 +109,8 @@ const OrderDetailsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-4 md:p-6">
-        {/* Header */}
+
+        {/* HEADER */}
         <div className="print:hidden mb-6">
           <button
             onClick={handleBack}
@@ -120,15 +125,17 @@ const OrderDetailsPage = () => {
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
                 Order ID: {activeOrder._id?.slice(-8).toUpperCase()}
               </h1>
+
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <Calendar size={14} />
-                  <span>{formatDate(activeOrder.createdAt)}</span>
+                  <span>{new Date(activeOrder.createdAt).toLocaleString()}</span>
                 </div>
+
                 <span className={`px-3 py-1 rounded-full border text-xs font-medium ${getStatusBadge(activeOrder.status)}`}>
-                  {activeOrder.status?.charAt(0).toUpperCase() + activeOrder.status?.slice(1) || "Pending"}
+                  {activeOrder.status}
                 </span>
-                {/* UPDATED: Payment status badge in header */}
+
                 <span className={`px-3 py-1 rounded-full border text-xs font-medium ${getPaymentStatusBadge(activeOrder.paymentInfo?.status)}`}>
                   {activeOrder.paymentInfo?.status === "pending" ? "Payment pending" : "Paid"}
                 </span>
@@ -154,9 +161,10 @@ const OrderDetailsPage = () => {
           </div>
         </div>
 
-        {/* Main Content Grid - EQUAL HEIGHT */}
+        {/* GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 lg:items-start gap-6">
-          {/* Left Column */}
+
+          {/* LEFT SECTION */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden flex-1 flex flex-col">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -165,9 +173,11 @@ const OrderDetailsPage = () => {
                   Order items ({activeOrder.items?.length || 0})
                 </h2>
               </div>
+
               <div className="divide-y divide-gray-200 flex-1">
                 {(activeOrder.items || []).map((item, index) => (
                   <div key={index} className="px-6 py-4 flex items-start gap-4">
+
                     {item.productId?.productImages?.[0] && (
                       <img
                         src={`${IMAGE}${item.productId.productImages[0]}`}
@@ -175,38 +185,48 @@ const OrderDetailsPage = () => {
                         className="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0"
                       />
                     )}
+
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900">{item.name || "Unknown Product"}</h3>
+                      <h3 className="text-sm font-medium text-gray-900">{item.name}</h3>
                       <div className="mt-1 flex items-center gap-4 text-xs text-gray-600">
                         <span>Qty: {item.quantity}</span>
                         <span>×</span>
-                        <span className="font-medium">{formatINR(item.price)}</span>
+
+                        {/* PRICE IS IN PAISE */}
+                        <span className="font-medium">{formatINR(item.price, true)}</span>
                       </div>
                     </div>
+
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-gray-900">{formatINR(item.subtotal)}</p>
+                      {/* SUBTOTAL IS IN PAISE */}
+                      <p className="text-sm font-semibold text-gray-900">{formatINR(item.subtotal, true)}</p>
                     </div>
                   </div>
                 ))}
               </div>
+
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">{formatINR(activeOrder.totalAmount)}</span>
+
+                    {/* totalAmount = rupees */}
+                    <span className="font-medium text-gray-900">
+                      {formatINR(activeOrder.totalAmount, false)}
+                    </span>
                   </div>
-                  {/* <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax</span>
-                    <span className="font-medium text-gray-900">₹0.00</span>
-                  </div> */}
+
                   <div className="pt-2 border-t border-gray-200 flex justify-between">
                     <span className="text-base font-semibold text-gray-900">Total</span>
-                    <span className="text-lg font-bold text-gray-900">{formatINR(activeOrder.totalAmount)}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {formatINR(activeOrder.totalAmount, false)}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
+            {/* PAYMENT INFO */}
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-base font-semibold text-gray-900 flex items-center gap-2">
@@ -214,27 +234,35 @@ const OrderDetailsPage = () => {
                   Payment information
                 </h2>
               </div>
+
               <div className="px-6 py-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Payment Status</span>
-                  {/* UPDATED: Payment status badge in card */}
                   <span className={`px-2 py-1 rounded text-xs font-medium ${getPaymentStatusBadge(activeOrder.paymentInfo?.status)}`}>
                     {activeOrder.paymentInfo?.status?.toUpperCase() || "PENDING"}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Razorpay Order ID</span>
-                  <span className="font-mono text-xs text-gray-900">{activeOrder.paymentInfo?.razorpayOrderId || "N/A"}</span>
+                  <span className="font-mono text-xs text-gray-900">
+                    {activeOrder.paymentInfo?.razorpayOrderId || "N/A"}
+                  </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Amount</span>
-                  <span className="font-semibold text-gray-900">{formatINR(activeOrder.totalAmount)}</span>
+
+                  {/* payment amount = totalAmount = rupees */}
+                  <span className="font-semibold text-gray-900">
+                    {formatINR(activeOrder.totalAmount, false)}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column */}
+          {/* RIGHT SECTION */}
           <div className="bg-white rounded-lg border border-gray-200 flex flex-col h-full">
             <div className="flex-1">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -249,16 +277,19 @@ const OrderDetailsPage = () => {
                   </div>
                 </div>
               </div>
+
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-base font-semibold text-gray-900 mb-4">Contact information</h2>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Mail size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-900">{activeOrder.customerId?.email || "N/A"}</span>
+                    <span className="text-sm text-gray-900">{activeOrder.customerId?.email}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone size={16} className="text-gray-400" />
-                    <span className="text-sm text-gray-900">{activeOrder.customerId?.phone || "No phone number"}</span>
+                    <span className="text-sm text-gray-900">
+                      {activeOrder.customerId?.phone || "No phone number"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -271,25 +302,34 @@ const OrderDetailsPage = () => {
                   <p className="font-medium">
                     {activeOrder.customerId?.firstName} {activeOrder.customerId?.lastName}
                   </p>
-                  <p>{activeOrder.shippingAddress?.address || "N/A"}</p>
+
+                  <p>{activeOrder.shippingAddress?.address}</p>
+
                   <p>
                     {activeOrder.shippingAddress?.city}, {activeOrder.shippingAddress?.state}{" "}
                     {activeOrder.shippingAddress?.pincode}
                   </p>
-                  <p>{activeOrder.shippingAddress?.country || "India"}</p>
-                  <p className="pt-2 text-gray-600">{activeOrder.customerId?.phone || "N/A"}</p>
+
+                  <p>{activeOrder.shippingAddress?.country}</p>
+
+                  <p className="pt-2 text-gray-600">{activeOrder.customerId?.phone}</p>
                 </div>
               </div>
+
               {activeOrder.isReturnable !== undefined && (
                 <div className="px-6 py-4">
                   <h2 className="text-base font-semibold text-gray-900 mb-4">Return policy</h2>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Returnable</span>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${activeOrder.isReturnable
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
-                      }`}>
-                      {activeOrder.isReturnable ? `Yes (${activeOrder.returnWindowDays} days)` : "No"}
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${activeOrder.isReturnable
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                        }`}
+                    >
+                      {activeOrder.isReturnable
+                        ? `Yes (${activeOrder.returnWindowDays} days)`
+                        : "No"}
                     </span>
                   </div>
                 </div>
