@@ -128,10 +128,17 @@ export const OrderNotificationProvider = ({ children }) => {
     }
   }, []);
 
-  const clearNotifications = useCallback(() => {
+  const clearNotifications = useCallback(async () => {
     setNotifications([]);
     setUnreadCount(0);
-  }, []);
+
+    try {
+      await axiosInstance.delete('/notifications/read/all');
+    } catch (error) {
+        console.error("Error clearing notifications:", error);
+        fetchNotifications();
+    }
+  }, [fetchNotifications]);
 
   const value = {
     socket,
