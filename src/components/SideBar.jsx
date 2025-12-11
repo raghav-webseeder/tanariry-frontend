@@ -1,3 +1,5 @@
+import { RiCustomerService2Line } from "react-icons/ri";
+import { BiMessageRounded } from "react-icons/bi";
 import React, { useState, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -13,6 +15,8 @@ import {
   FaUserAlt,
   FaDollarSign,
   FaReadme,
+  FaHeadset,
+  FaComment,
 } from "react-icons/fa";
 
 const menuItems = [
@@ -24,7 +28,8 @@ const menuItems = [
   { label: "Customers", icon: FaUsers, path: "/customers" },
   { label: "Finance", icon: FaDollarSign, path: "/finance" },
   { label: "Report", icon: FaReadme, path: "/report" },
-  { label: "Support", icon: FaLifeRing, path: "/support" },
+  { label: "Enquiries", icon: FaComment, path: "/support" },
+  { label: "Help", icon: FaHeadset, path: "/help" },
   { label: "Settings", icon: FaCog, path: "/settings" },
 ];
 
@@ -174,8 +179,8 @@ export default function Sidebar({ isSidebarOpen, toggleSidebar }) {
                 to={item.path}
                 onClick={toggleSidebar}
                 className={`flex items-center px-4 py-4 text-sm font-medium rounded-xl transition-all duration-300 ${location.pathname === item.path
-                    ? "bg-[#293a90] text-white shadow-lg shadow-[#293a90]/25"
-                    : "text-slate-700 hover:bg-[#293a90]/5 hover:text-[#293a90] hover:shadow-md"
+                  ? "bg-[#293a90] text-white shadow-lg shadow-[#293a90]/25"
+                  : "text-slate-700 hover:bg-[#293a90]/5 hover:text-[#293a90] hover:shadow-md"
                   }`}
                 style={{ animationDelay: `${index * 50}ms` }}
               >

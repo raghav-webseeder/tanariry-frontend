@@ -18,7 +18,7 @@ const menuItems = [
   { label: "Distributor", path: "/distributor" },
   { label: "Inquiry", path: "/inquiry" },
   { label: "Settings", path: "/settings" },
-  { label: "Support", path: "/support" },
+  { label: "Enquiries", path: "/support" },
   { label: "Help", path: "/help" },
   { label: "Manage Profile", path: "/manage-profile" },
   { label: "Change Password", path: "/change-password" },
