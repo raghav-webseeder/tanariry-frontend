@@ -14,7 +14,8 @@ const menuItems = [
   { label: "Customers", path: "/customers" },
   { label: "Finance", path: "/finance" },
   { label: "Report", path: "/report" },
-  { label: "Support", path: "/support" },
+  { label: "Enquiry", path: "/support" },
+  { label: "Help", path: "/help" },
   { label: "Settings", path: "/settings" },
 ];
 
