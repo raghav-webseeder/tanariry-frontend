@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Mail,
@@ -32,18 +32,19 @@ const CustomerDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { currentCustomer, fetchCustomerById, updateCustomer } = useCustomerStore();
+  const { currentCustomer, fetchCustomerById, updateCustomer, updateAddress, deleteAddress } = useCustomerStore();
   const { fetchOrdersByCustomerId } = useOrderStore();
 
   const [orders, setOrders] = useState([]);
   const [editedCustomer, setEditedCustomer] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [activeTab, setActiveTab] = useState("orders");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [savedAddress, setSavedAddress] = useState(null);
+  const [currentAddressIndex, setCurrentAddressIndex] = useState(null);
   const [addressFormData, setAddressFormData] = useState({});
 
   const [statusFilter, setStatusFilter] = useState("all");
@@ -158,46 +159,69 @@ const CustomerDetails = () => {
     currentPage * itemsPerPage
   );
 
-  const handleOpenModal = (isEdit = false, address = null) => {
+  const handleOpenModal = (isEdit = false, addressIndex = null) => {
     setIsEditing(isEdit);
-    setSavedAddress(address);
-    setAddressFormData(isEdit && address ? address : {});
+    setCurrentAddressIndex(addressIndex);
+    if (isEdit && addressIndex !== null) {
+      setAddressFormData(editedCustomer.addresses[addressIndex]);
+    } else {
+      setAddressFormData({});
+    }
     setIsModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-    setSavedAddress(null);
+    setCurrentAddressIndex(null);
     setAddressFormData({});
   };
 
-  const handleModalSubmit = (e) => {
+  const handleModalSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setEditedCustomer((prev) => ({
-        ...prev,
-        addresses: prev.addresses.map((addr) =>
-          addr._id === savedAddress._id ? { ...addr, ...addressFormData } : addr
-        ),
-      }));
-      toast.success("Address updated locally");
-    } else {
-      const newAddress = { ...addressFormData, _id: Date.now().toString() };
-      setEditedCustomer((prev) => ({
-        ...prev,
-        addresses: [...prev.addresses, newAddress],
-      }));
-      toast.success("Address added locally");
+    setIsSubmitting(true);
+
+    try {
+      if (isEditing) {
+        await updateAddress(id, currentAddressIndex, addressFormData);
+        await fetchCustomerById(id);
+        toast.success("Address updated successfully");
+      } else {
+        toast.info("Add address API not implemented yet");
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update address");
+    } finally {
+      setIsSubmitting(false);
     }
-    handleCloseModal();
   };
 
-  const handleDeleteAddress = (address) => {
-    setEditedCustomer((prev) => ({
-      ...prev,
-      addresses: prev.addresses.filter((addr) => addr !== address),
-    }));
-    toast.success("Address removed");
+  const handleDeleteAddress = async (addressIndex) => {
+    if (!window.confirm("Are you sure you want to delete this address?")) {
+      return;
+    }
+
+    const toastId = toast.loading("Deleting address...");
+
+    try {
+      await deleteAddress(id, addressIndex);
+      await fetchCustomerById(id);
+
+      toast.update(toastId, {
+        render: "Address deleted successfully",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
+    } catch (error) {
+      toast.update(toastId, {
+        render: error.response?.data?.message || "Failed to delete address",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000
+      });
+    }
   };
 
   const handleSaveChanges = async () => {
@@ -261,7 +285,7 @@ const CustomerDetails = () => {
     email: editedCustomer.email,
     phone: editedCustomer.phone,
     status: editedCustomer.isActive ? "Active" : "Inactive",
-    totalSpend: orderAggregates.totalSpent
+    totalSpend: orderAggregates.totalSpend
   };
 
   return (
@@ -277,13 +301,6 @@ const CustomerDetails = () => {
                 <ArrowLeft size={14} /> Back
               </button>
             </div>
-            {/* <button
-              onClick={handleSaveChanges}
-              disabled={isSaving}
-              className="inline-flex items-center gap-1.5 text-xs bg-[#293a90] text-white px-4 py-2 rounded-lg hover:bg-[#293a90]/90 transition-colors"
-            >
-              <Save size={14} /> {isSaving ? "Saving..." : "Save Changes"}
-            </button> */}
           </div>
         </div>
 
@@ -432,15 +449,14 @@ const CustomerDetails = () => {
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                   <h3 className="text-sm font-semibold text-gray-900">Saved Addresses</h3>
-                  {/* <button onClick={() => handleOpenModal(false)} className="inline-flex items-center gap-1.5 bg-[#293a90] text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[#293a90]/90 transition-colors"><Plus size={14} /> Add New</button> */}
                 </div>
                 <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                   {editedCustomer.addresses && editedCustomer.addresses.length > 0 ? (
                     editedCustomer.addresses.map((address, index) => (
                       <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors relative group bg-gray-50/50">
                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => handleOpenModal(true, address)} className="p-1.5 bg-white text-blue-600 border border-gray-200 rounded hover:bg-blue-50"><Edit size={12} /></button>
-                          <button onClick={() => handleDeleteAddress(address)} className="p-1.5 bg-white text-red-600 border border-gray-200 rounded hover:bg-red-50"><Trash2 size={12} /></button>
+                          <button onClick={() => handleOpenModal(true, index)} className="p-1.5 bg-white text-blue-600 border border-gray-200 rounded hover:bg-blue-50"><Edit size={12} /></button>
+                          <button onClick={() => handleDeleteAddress(index)} className="p-1.5 bg-white text-red-600 border border-gray-200 rounded hover:bg-red-50"><Trash2 size={12} /></button>
                         </div>
                         <div className="flex items-center gap-2 mb-2"><MapPin size={16} className="text-blue-600" /><span className="text-xs font-bold text-gray-700 uppercase">Address #{index + 1}</span></div>
                         <div className="text-xs text-gray-700 space-y-1">
@@ -478,7 +494,7 @@ const CustomerDetails = () => {
                 </div>
                 <div className="flex justify-end gap-2 pt-4 border-t border-gray-200">
                   <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-xs text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                  <button type="submit" className="px-4 py-2 text-xs bg-[#293a90] hover:bg-[#293a90]/90 text-white rounded-lg">{isEditing ? "Update" : "Add"}</button>
+                  <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-xs bg-[#293a90] hover:bg-[#293a90]/90 text-white rounded-lg disabled:opacity-50">{isSubmitting ? "Saving..." : isEditing ? "Update" : "Add"}</button>
                 </div>
               </form>
             </div>

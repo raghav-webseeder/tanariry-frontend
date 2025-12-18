@@ -2,13 +2,11 @@ import { create } from "zustand";
 import axiosInstance from "../../utils/axios";
 
 const useCustomerStore = create((set) => ({
-  // State
   customers: [],
   currentCustomer: null,
   loading: false,
   error: null,
 
-  // Fetch all customers
   fetchCustomers: async () => {
     set({ loading: true, error: null });
     try {
@@ -23,7 +21,6 @@ const useCustomerStore = create((set) => ({
     }
   },
 
-  // Fetch a single customer by ID
   fetchCustomerById: async (id) => {
     set({ loading: true, error: null });
     try {
@@ -43,7 +40,6 @@ const useCustomerStore = create((set) => ({
     }
   },
 
-  // Create a new customer
   createCustomer: async (customerData) => {
     set({ loading: true, error: null });
     try {
@@ -64,7 +60,6 @@ const useCustomerStore = create((set) => ({
     }
   },
 
-  // Update a customer by ID
   updateCustomer: async (id, updatedData) => {
     set({ loading: true, error: null });
     try {
@@ -92,7 +87,6 @@ const useCustomerStore = create((set) => ({
     }
   },
 
-  // Delete a customer by ID
   deleteCustomer: async (id) => {
     set({ loading: true, error: null });
     try {
@@ -108,6 +102,41 @@ const useCustomerStore = create((set) => ({
         error: error.response?.data?.message || error.message,
         loading: false,
       });
+    }
+  },
+
+  updateAddress: async (userId, addressIndex, addressData) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.put(
+        `/users/${userId}/addresses/${addressIndex}`,
+        addressData
+      );
+      set({ currentCustomer: response.data.data, loading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || error.message,
+        loading: false,
+      });
+      throw error;
+    }
+  },
+
+  deleteAddress: async (userId, addressIndex) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await axiosInstance.delete(
+        `/users/${userId}/addresses/${addressIndex}`
+      );
+      set({ currentCustomer: response.data.data, loading: false });
+      return response.data;
+    } catch (error) {
+      set({
+        error: error.response?.data?.message || error.message,
+        loading: false,
+      });
+      throw error;
     }
   },
 }));
